@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>InstaTools</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --insta-pink: #E1306C;
+            --insta-purple: #C13584;
+            --insta-yellow: #F77737;
+            --insta-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            --snap-black: #000000;
+            --bg-chat: #09090b;
+            --bg-workspace: #020202;
+            --bg-bubble-user: #1c1c1e;
+            --border-color: #27272a;
+            --text-main: #fafafa;
+            --text-muted: #a1a1aa;
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --chat-btn-bg: #0c0c0e;
+            --chat-btn-border: #1e1e22;
+            --menu-bg: rgba(9, 9, 11, 0.95);
+            --alert-bg: rgba(20, 20, 25, 0.85);
+            --alert-border: rgba(225, 48, 108, 0.4);
+            --glow-color: rgba(225, 48, 108, 0.2);
+        }
+
+        /* Light Theme Colors */
+        [data-theme="light"] {
+            --bg-chat: #f4f4f5;
+            --bg-workspace: #e4e4e7;
+            --bg-bubble-user: #e4e4e7;
+            --border-color: #d4d4d8;
+            --text-main: #09090b;
+            --text-muted: #52525b;
+            --chat-btn-bg: #ffffff;
+            --chat-btn-border: #e4e4e7;
+            --menu-bg: rgba(244, 244, 245, 0.95);
+            --alert-bg: rgba(255, 255, 255, 0.9);
+            --alert-border: rgba(225, 48, 108, 0.3);
+            --glow-color: rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-main);
+            font-weight: 700;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        body {
+            background-color: var(--bg-workspace);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            min-height: 100dvh; 
+            overflow: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* --- Welcome Instructions Popup Styles --- */
+        .instructions-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 2, 2, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+            animation: fadeInOverlay 0.3s ease-out;
+        }
+
+        .instructions-card {
+            background: #0f0f13;
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 400px;
+            padding: 28px 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            text-align: center;
+            position: relative;
+            animation: slideUpPopup 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .instructions-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--insta-gradient);
+            border-radius: 24px 24px 0 0;
+            box-shadow: 0 2px 10px rgba(225, 48, 108, 0.4);
+        }
+
+        .instructions-logo {
+            width: 50px;
+            height: 50px;
+            background: var(--insta-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px auto;
+            color: #fff;
+            font-size: 24px;
+            box-shadow: 0 0 15px rgba(225, 48, 108, 0.4);
+        }
+
+        .instructions-card h3 {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 18px;
+            letter-spacing: -0.5px;
+            color: var(--text-main);
+        }
+
+        .steps-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            text-align: left;
+            margin-bottom: 24px;
+        }
+
+        .step-item {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+
+        .step-num {
+            background: rgba(225, 48, 108, 0.15);
+            color: var(--insta-pink);
+            border: 1px solid rgba(225, 48, 108, 0.4);
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 800;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .step-content h5 {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 3px;
+        }
+
+        .step-content p {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .popup-close-btn {
+            width: 100%;
+            background: var(--insta-gradient);
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(225, 48, 108, 0.4);
+        }
+
+        .popup-close-btn:active {
+            transform: scale(0.98);
+        }
+
+        @keyframes fadeInOverlay {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUpPopup {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Live Status Bar --- */
+        .live-status-bar {
+            background: rgba(12, 12, 14, 0.85);
+            border-bottom: 1px solid var(--border-color);
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--text-muted);
+            z-index: 90;
+            position: relative;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: #00ff66;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #00ff66;
+            animation: pulseDot 1.8s infinite;
+        }
+
+        @keyframes pulseDot {
+            0% { transform: scale(0.9); opacity: 0.6; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.6; }
+        }
+
+        .status-text strong {
+            color: var(--insta-pink);
+            transition: all 0.5s ease-out;
+            font-weight: 800;
+        }
+
+        .status-divider {
+            color: var(--border-color);
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--bg-chat);
+            background-image: 
+                radial-gradient(var(--border-color) 1px, transparent 0),
+                linear-gradient(to right, rgba(225,48,108,0.01) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(225,48,108,0.01) 1px, transparent 1px);
+            background-size: 24px 24px, 40px 40px, 40px 40px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            height: 100dvh; 
+            position: relative;
+            overflow: hidden;
+            transition: background-color 0.3s;
+        }
+
+        .chat-container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0.3;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%2327272a' fill-opacity='0.12'%3E%3Cpath d='M10 15h2v2h-2zm10 0h2v2h-2zm-10 10h2v2h-2zm10 0h2v2h-2zm30-10h2v2h-2zm10 0h2v2h-2zm-10 10h2v2h-2zm10 0h2v2h-2zM15 45h2v2h-2zm10 0h2v2h-2zm-10 10h2v2h-2zm10 0h2v2h-2zm30-10h2v2h-2zm10 0h2v2h-2zm-10 10h2v2h-2zm10 0h2v2h-2z'/%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .chat-header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-chat);
+            z-index: 99;
+            position: relative;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-bars-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+        .menu-bars-btn:hover {
+            background: var(--bg-bubble-user);
+        }
+
+        .brand-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ai-brand {
+            font-weight: 800;
+            font-size: 24px;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+        }
+        .ai-brand .part-snap {
+            color: var(--insta-pink);
+        }
+        .ai-brand .part-tools {
+            color: var(--text-main);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Language Selector */
+        .lang-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .lang-btn {
+            background: var(--chat-btn-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-size: 14px;
+            padding: 0 12px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .lang-btn:hover {
+            border-color: var(--insta-pink);
+        }
+
+        .lang-dropdown {
+            position: absolute;
+            top: 42px;
+            right: 0;
+            background: var(--menu-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1001;
+            min-width: 120px;
+        }
+
+        .lang-opt {
+            padding: 10px 14px;
+            color: var(--text-main);
+            font-size: 13px;
+            cursor: pointer;
+            text-align: left;
+            transition: background 0.2s;
+        }
+        .lang-opt:hover {
+            background: var(--bg-bubble-user);
+            color: var(--insta-pink);
+        }
+
+        .theme-btn {
+            background: var(--chat-btn-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-size: 16px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .theme-btn:hover {
+            border-color: var(--insta-pink);
+            box-shadow: 0 0 10px var(--glow-color);
+        }
+
+        .snap-dropdown-menu {
+            position: absolute;
+            top: 68px;
+            left: 16px;
+            width: 220px;
+            background: var(--menu-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1000;
+            animation: fadeInMenu 0.2s ease-out;
+        }
+
+        @keyframes fadeInMenu {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .menu-item {
+            padding: 14px 16px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
+        }
+        .menu-item:last-child { border-bottom: none; }
+        .menu-item:hover, .menu-item:active { background: var(--bg-bubble-user); }
+        .menu-item i { color: var(--insta-pink); width: 16px; text-align: center; font-size: 14px; }
+
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+            z-index: 5;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .chat-row {
+            display: flex;
+            gap: 14px;
+            max-width: 100%;
+        }
+
+        .chat-row.user-row { 
+            flex-direction: row-reverse; 
+        }
+
+        .bot-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--insta-gradient);
+            color: #fff;
+            box-shadow: 0 0 10px var(--glow-color);
+        }
+
+        .bot-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* --- Target User Profile Card --- */
+        .target-profile-card {
+            background: rgba(18, 18, 24, 0.9);
+            border: 1px solid var(--insta-pink);
+            border-radius: 18px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-top: 12px;
+            box-shadow: 0 4px 15px rgba(225, 48, 108, 0.15);
+        }
+
+        .target-avatar-img {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            border: 2px solid var(--insta-pink);
+            object-fit: cover;
+            background: #000;
+        }
+
+        .target-user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .target-user-info .username {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .target-user-info .status-badge {
+            font-size: 11px;
+            color: #00ff66;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 2px;
+        }
+
+        .msg-bubble {
+            font-size: 16px;
+            line-height: 1.6;
+            max-width: 85%;
+            color: var(--text-main);
+            padding-top: 6px;
+            font-weight: 700;
+        }
+
+        .user-row .msg-bubble {
+            background: var(--bg-bubble-user);
+            padding: 12px 18px;
+            border-radius: 18px 4px 18px 18px;
+            max-width: 75%;
+            font-weight: 800;
+            border: 1px solid var(--border-color);
+        }
+
+        [data-theme="dark"] .user-row .msg-bubble {
+            background: #1c1c1e;
+        }
+
+        .typing-dots {
+            display: inline-flex;
+            gap: 4px;
+            align-items: center;
+            padding: 8px 0;
+        }
+        .typing-dots span {
+            width: 6px;
+            height: 6px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            animation: bounceDot 1.4s infinite ease-in-out both;
+        }
+        .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounceDot { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+        .options-box {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 16px;
+            width: 100%;
+        }
+
+        .chat-opt-btn {
+            background: var(--chat-btn-bg);
+            border: 1px solid var(--chat-btn-border);
+            color: var(--text-main);
+            padding: 18px 16px;
+            border-radius: 18px;
+            text-align: left;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.25s ease;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .chat-opt-btn:hover { 
+            border-color: var(--insta-pink); 
+            background: rgba(225, 48, 108, 0.03);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px var(--glow-color);
+        }
+        .chat-opt-btn:active { transform: translateY(0) scale(0.99); }
+        
+        .btn-left-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .chat-opt-btn i.btn-icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+            color: var(--insta-pink);
+        }
+
+        .chat-opt-btn i.fa-chevron-right { 
+            font-size: 13px; 
+            color: #71717a; 
+            transition: transform 0.2s;
+        }
+        .chat-opt-btn:hover i.fa-chevron-right {
+            transform: translateX(3px);
+            color: var(--text-main);
+        }
+
+        /* Terminal Log Box */
+        .terminal-log-box {
+            background: #020205;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 16px;
+            margin-top: 16px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: #e4e4e7;
+            max-height: 160px;
+            overflow-y: auto;
+            line-height: 1.6;
+            display: none;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
+        }
+        .terminal-line {
+            margin-bottom: 6px;
+            display: flex;
+            gap: 10px;
+        }
+        .terminal-line span { font-family: var(--font-mono); font-weight: 700; }
+        .terminal-success { color: #00ff66; text-shadow: 0 0 8px rgba(0,255,102,0.2); }
+        .terminal-warn { color: var(--insta-pink); text-shadow: 0 0 8px rgba(225,48,108,0.2); }
+
+        .media-preview-container {
+            border: 1px solid var(--border-color);
+            background: var(--chat-btn-bg);
+            border-radius: 20px;
+            margin-top: 16px;
+            overflow: hidden;
+            max-width: 100%;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+
+        .media-header-label {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .media-frame { 
+            position: relative; 
+            height: 180px; 
+            background: #000; 
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .media-blur-overlay { 
+            position: absolute; 
+            inset: 0; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            font-size: 14px; 
+            color: #e4e4e7; 
+            letter-spacing: 0.5px; 
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .progress-block { margin-top: 16px; width: 100%; }
+        .progress-labels { display: flex; justify-content: space-between; font-size: 14px; color: var(--text-main); margin-bottom: 8px; }
+        .progress-bar-bg { width: 100%; background: var(--border-color); height: 6px; border-radius: 10px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: var(--insta-gradient); width: 0%; box-shadow: 0 0 10px var(--glow-color); transition: width 0.1s linear; }
+
+        /* Offer/Verification Card */
+        .offer-verification-card {
+            border: 1px solid var(--border-color);
+            background: linear-gradient(145deg, #121218, #07070a);
+            border-radius: 24px;
+            padding: 28px 22px;
+            margin-top: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 16px;
+            width: 100%;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .offer-verification-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--insta-gradient);
+            box-shadow: 0 2px 10px rgba(225,48,108,0.5);
+        }
+
+        .offer-verification-card h4 { 
+            font-size: 20px; 
+            font-weight: 800; 
+            color: var(--text-main); 
+            letter-spacing: -0.5px;
+        }
+        
+        .offer-verification-card p { 
+            font-size: 13.5px; 
+            color: var(--text-muted); 
+            line-height: 1.6; 
+        }
+
+        .offer-verification-card p strong {
+            color: var(--insta-pink);
+        }
+        
+        .verification-icon { 
+            color: #fff; 
+            background: var(--insta-gradient); 
+            width: 52px; 
+            height: 52px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 22px; 
+            box-shadow: 0 0 15px rgba(225,48,108,0.4);
+        }
+
+        .gpt-action-btn {
+            width: 100%;
+            background: var(--insta-gradient);
+            color: #fff;
+            border: none;
+            padding: 16px;
+            border-radius: 28px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 8px;
+            box-shadow: 0 4px 15px rgba(225,48,108,0.3);
+            transition: all 0.25s ease;
+        }
+        .gpt-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(225,48,108,0.5);
+        }
+        .gpt-action-btn:active {
+            transform: translateY(0);
+        }
+
+        .chat-input-area { 
+            padding: 12px 16px 20px 16px; 
+            background: var(--bg-chat);
+            z-index: 10;
+            transition: background-color 0.3s;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .input-box-container {
+            background: var(--chat-btn-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            padding: 6px 8px 6px 20px;
+            transition: all 0.3s ease;
+        }
+        .input-box-container:focus-within {
+            border-color: var(--insta-pink);
+            box-shadow: 0 0 10px var(--glow-color);
+        }
+        .gpt-input { background: transparent; border: none; outline: none; color: var(--text-main); font-size: 15px; flex-grow: 1; padding: 10px 0; font-weight: 700; }
+        .gpt-input::placeholder { color: var(--text-muted); }
+        
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--insta-gradient);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(225,48,108,0.3);
+        }
+        .send-btn:active {
+            transform: scale(0.92);
+        }
+
+        .footer-banner {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 14px;
+        }
+
+        .hidden-row { display: none !important; }
+
+        .custom-alert {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-120px);
+            background: var(--alert-bg);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            color: #ff4444;
+            border: 1px solid var(--alert-border);
+            padding: 14px 22px;
+            border-radius: 20px;
+            font-size: 14px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+            z-index: 9999;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s;
+            opacity: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+        .custom-alert.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        .custom-alert i {
+            font-size: 16px;
+            animation: pulseAlert 1.5s infinite;
+        }
+        .custom-alert span {
+            color: var(--text-main);
+        }
+        @keyframes pulseAlert {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Welcome Instructions Popup -->
+    <div class="instructions-overlay" id="popupOverlay">
+        <div class="instructions-card">
+            <div class="instructions-logo">
+                <i class="fa-brands fa-instagram"></i>
+            </div>
+            <h3 id="popTitle">How to Use InstaTools</h3>
+            
+            <div class="steps-container">
+                <div class="step-item">
+                    <div class="step-num">1</div>
+                    <div class="step-content">
+                        <h5 id="step1Title">Enter Target Username</h5>
+                        <p id="step1Desc">Input the Instagram username of the target account in the text bar below to link the terminal.</p>
+                    </div>
+                </div>
+                
+                <div class="step-item">
+                    <div class="step-num">2</div>
+                    <div class="step-content">
+                        <h5 id="step2Title">Choose Extraction Feature</h5>
+                        <p id="step2Desc">Select the feature you want to view from the dashboard (Direct Messages, Highlights, Close Friends, etc.).</p>
+                    </div>
+                </div>
+                
+                <div class="step-item">
+                    <div class="step-num">3</div>
+                    <div class="step-content">
+                        <h5 id="step3Title">Complete Security Check</h5>
+                        <p id="step3Desc">Pass the human verification by completing a short offer on the next page. <strong>Note: You must complete the offer exactly as requested</strong> to instantly unlock the decrypted live stream.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="popup-close-btn" id="popBtn" onclick="closeInstructionsPopup()">OK, Got It!</button>
+        </div>
+    </div>
+
+    <div class="custom-alert" id="errorAlert">
+        <i class="fa-solid fa-circle-exclamation"></i> <span id="errorAlertText">Please enter target Instagram username first!</span>
+    </div>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="header-left">
+                <button class="menu-bars-btn" onclick="toggleSnapMenu(event)">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="brand-wrapper">
+                    <span class="ai-brand">
+                        <span class="part-snap">Insta</span><span class="part-tools">Tools</span>
+                    </span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="lang-wrapper">
+                    <button class="lang-btn" onclick="toggleLangDropdown(event)">
+                        <i class="fa-solid fa-globe"></i> <span id="currentLang">EN</span>
+                    </button>
+                    <div class="lang-dropdown" id="langDropdown">
+                        <div class="lang-opt" onclick="selectLanguage('EN')">English</div>
+                        <div class="lang-opt" onclick="selectLanguage('AR')">العربية</div>
+                        <div class="lang-opt" onclick="selectLanguage('FR')">Français</div>
+                        <div class="lang-opt" onclick="selectLanguage('ES')">Español</div>
+                        <div class="lang-opt" onclick="selectLanguage('DE')">Deutsch</div>
+                    </div>
+                </div>
+                <button class="theme-btn" id="themeToggleBtn" onclick="toggleThemeNode()">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="live-status-bar">
+            <span class="status-dot"></span>
+            <span class="status-text"><span id="lblActiveConn">Active Connections:</span> <strong id="activeUsersVal">12,841</strong></span>
+            <span class="status-divider">|</span>
+            <span class="status-text"><span id="lblBypassedDb">Bypassed Databases Today:</span> <strong id="bypassedVal">7,914</strong></span>
+        </div>
+
+        <div class="snap-dropdown-menu" id="snapMenu">
+            <a href="https://privacycenter.instagram.com/" target="_blank" class="menu-item" id="menuPrivacy">
+                <i class="fa-solid fa-user-shield"></i> Privacy Policy
+            </a>
+            <a href="https://help.instagram.com/477434105621119" target="_blank" class="menu-item" id="menuRules">
+                <i class="fa-solid fa-scale-balanced"></i> Community Rules
+            </a>
+            <a href="https://help.instagram.com/" target="_blank" class="menu-item" id="menuSupport">
+                <i class="fa-solid fa-circle-question"></i> Instagram Support
+            </a>
+        </div>
+
+        <div class="chat-history" id="chatWindow">
+            <div class="chat-row ai-row" id="welcomeMsg">
+                <div class="bot-avatar"><i class="fa-brands fa-instagram"></i></div>
+                <div class="msg-bubble" id="welcomeText"></div>
+            </div>
+
+            <div class="chat-row ai-row hidden-row" id="typingBubble">
+                <div class="bot-avatar"><i class="fa-brands fa-instagram"></i></div>
+                <div class="msg-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>
+            </div>
+        </div>
+
+        <div class="chat-input-area">
+            <div class="input-box-container">
+                <input type="text" class="gpt-input" id="userInputField" placeholder="Enter target Instagram username..." autocomplete="off">
+                <button class="send-btn" id="sendBtn" onclick="submitUserIdentifier()">
+                    <i class="fa-solid fa-arrow-up"></i>
+                </button>
+            </div>
+            <div class="footer-banner" id="footerBannerText">End-to-End Encrypted Console. Anonymous Access Panel 2026.</div>
+        </div>
+    </div>
+
+    <script>
+        function getInstagramAvatarUrl(username) {
+            return `https://images.weserv.nl/?url=https://unavatar.io/instagram/${encodeURIComponent(username)}`;
+        }
+
+        const translations = {
+            EN: {
+                popTitle: "How to Use InstaTools",
+                step1Title: "Enter Target Username",
+                step1Desc: "Input the Instagram username of the target account in the text bar below to link the terminal.",
+                step2Title: "Choose Extraction Feature",
+                step2Desc: "Select the feature you want to view from the dashboard (Direct Messages, Highlights, Close Friends, etc.).",
+                step3Title: "Complete Security Check",
+                step3Desc: "Pass the human verification by completing a short offer on the next page. Note: You must complete the offer exactly as requested to instantly unlock the decrypted live stream.",
+                popBtn: "OK, Got It!",
+                errorAlertText: "Please enter target Instagram username first!",
+                placeholder: "Enter target Instagram username...",
+                footer: "End-to-End Encrypted Console. Anonymous Access Panel 2026.",
+                lblActiveConn: "Active Connections:",
+                lblBypassedDb: "Bypassed Databases Today:",
+                menuPrivacy: "Privacy Policy",
+                menuRules: "Community Rules",
+                menuSupport: "Instagram Support",
+                welcomeText: "Welcome to InstaTools Pro. Enter the username of the target Instagram account you want to monitor and view below.",
+                linkedText: "Target profile linked successfully: @{user}. Select the secure data layer you want to extract from this user dashboard:",
+                fetchingText: "Fetching cloud databank for {node}. Establishing anonymous stream:",
+                lblLiveStream: "Live Stream Window",
+                lblDownloading: "Downloading remote assets...",
+                log1: "Connecting proxy tunnels [SECURE]...",
+                log2: "Locating user database cluster...",
+                log3: "Authorization bypass success.",
+                log4: "Extracting cached storage blocks...",
+                log5: "Data stream linked. Pre-rendering preview...",
+                verifyTitle: "Human Verification Required",
+                verifyDesc: "The secure proxy tunnel linked successfully. To protect server resources from automated bots, you must complete the human verification below. <strong>Important: You must complete the selected offer on the next page exactly as requested</strong> to instantly reveal your live decrypted dashboard logs and images.",
+                verifyBtn: "Pass Verification",
+                feat1: "Direct Messages (DMs)",
+                feat2: "Highlights",
+                feat3: "Recent Activity",
+                feat4: "Following List",
+                feat5: "Close Friends",
+                feat6: "Activity Status"
+            },
+            AR: {
+                popTitle: "كيفية استخدام InstaTools",
+                step1Title: "أدخل اسم المستخدم المستهدف",
+                step1Desc: "أدخل اسم مستخدم إنستغرام للحساب المراد مراقبته في شريط النص أدناه لربط لوحة التحكم.",
+                step2Title: "اختر ميزة الاستخراج",
+                step2Desc: "حدد الميزة التي تريد عرضها من لوحة التحكم (الرسائل الخاصة، الأبرز، الأصدقاء المقربون، إلخ).",
+                step3Title: "أكمل التحقق الأمني",
+                step3Desc: "اجتز التحقق البشري عن طريق إكمال عرض قصير في الصفحة التالية. ملاحظة: يجب إكمال العرض تماماً كما هو مطلوب لفتح البث المباشر المشفر فوراً.",
+                popBtn: "حسناً، فهمت!",
+                errorAlertText: "يرجى إدخال اسم مستخدم إنستغرام أولاً!",
+                placeholder: "أدخل اسم مستخدم إنستغرام المستهدف...",
+                footer: "لوحة تحكم مشفرة بالكامل. بوابة الوصول المجهول 2026.",
+                lblActiveConn: "الاتصالات النشطة:",
+                lblBypassedDb: "قواعد البيانات المخترقة اليوم:",
+                menuPrivacy: "سياسة الخصوصية",
+                menuRules: "قواعد المجتمع",
+                menuSupport: "دعم إنستغرام",
+                welcomeText: "مرحباً بك في InstaTools Pro. أدخل اسم مستخدم حساب إنستغرام المستهدف الذي تريد مراقبته وعرضه أدناه.",
+                linkedText: "تم ربط الملف الشخصي المستهدف بنجاح: @{user}. حدد طبقة البيانات الآمنة التي تريد استخراجها من لوحة التحكم:",
+                fetchingText: "جاري جلب قاعدة البيانات السحابية لـ {node}. إنشاء تدفق مجهول:",
+                lblLiveStream: "نافذة البث المباشر",
+                lblDownloading: "جاري تحميل الملفات عن بُعد...",
+                log1: "جاري الاتصال بنفق البروكسي [آمن]...",
+                log2: "تحديد موقع خادم قاعدة بيانات المستخدم...",
+                log3: "تم تجاوز التفويض بنجاح.",
+                log4: "جاري استخراج كتل التخزين المؤقتة...",
+                log5: "تم ربط تدفق البيانات. جاري المعاينة المسبقة...",
+                verifyTitle: "مطلوب التحقق البشري",
+                verifyDesc: "تم ربط نفق البروكسي الآمن بنجاح. لحماية موارد الخادم من البوتات الآلية، يجب عليك إكمال التحقق البشري أدناه. <strong>مهم: يجب إكمال العرض المحدد تماماً كما هو موضح في الصفحة التالية</strong> للكشف فوراً عن ملفات البث والصور المشفرة.",
+                verifyBtn: "اجتياز التحقق الآن",
+                feat1: "الرسائل المباشرة (DMs)",
+                feat2: "الهايلايت (Highlights)",
+                feat3: "النشاط الأخير",
+                feat4: "قائمة المتابعين",
+                feat5: "الأصدقاء المقربون",
+                feat6: "حالة النشاط"
+            },
+            FR: {
+                popTitle: "Comment utiliser InstaTools",
+                step1Title: "Entrer le nom d'utilisateur",
+                step1Desc: "Entrez le nom d'utilisateur Instagram du compte cible dans la barre de texte ci-dessous pour lier le terminal.",
+                step2Title: "Choisir la fonctionnalité",
+                step2Desc: "Sélectionnez la fonctionnalité que vous souhaitez afficher depuis le tableau de bord (Messages directs, Highlights, Amis proches, etc.).",
+                step3Title: "Contrôle de sécurité",
+                step3Desc: "Passez la vérification humaine en complétant une offre sur la page suivante. Note: Vous devez compléter l'offre exactement comme demandé pour déverrouiller instantanément le flux direct.",
+                popBtn: "OK, J'ai compris!",
+                errorAlertText: "Veuillez entrer un nom d'utilisateur Instagram d'abord!",
+                placeholder: "Entrez le nom d'utilisateur Instagram cible...",
+                footer: "Console cryptée de bout en bout. Panneau d'accès anonyme 2026.",
+                lblActiveConn: "Connexions Actives:",
+                lblBypassedDb: "Bases de données contournées:",
+                menuPrivacy: "Politique de confidentialité",
+                menuRules: "Règles de la communauté",
+                menuSupport: "Support Instagram",
+                welcomeText: "Bienvenue sur InstaTools Pro. Entrez le nom d'utilisateur du compte Instagram cible que vous souhaitez surveiller et afficher ci-dessous.",
+                linkedText: "Profil cible lié avec succès: @{user}. Sélectionnez la couche de données sécurisée que vous souhaitez extraire:",
+                fetchingText: "Récupération de la banque de données cloud pour {node}. Établissement du flux anonyme:",
+                lblLiveStream: "Fenêtre de Flux en Direct",
+                lblDownloading: "Téléchargement des ressources distantes...",
+                log1: "Connexion aux tunnels de proxy [SÉCURISÉ]...",
+                log2: "Localisation du cluster de base de données...",
+                log3: "Succès du contournement des autorisations.",
+                log4: "Extraction des blocs de stockage mis en cache...",
+                log5: "Flux de données lié. Pré-rendu de l'aperçu...",
+                verifyTitle: "Vérification Humaine Requise",
+                verifyDesc: "Le tunnel proxy sécurisé s'est connecté avec succès. Pour protéger les ressources du serveur contre les robots automatisés, vous devez remplir la vérification ci-dessous. <strong>Important: Vous devez compléter l'offre sélectionnée exactement comme indiqué sur la page suivante</strong> pour révéler instantanément vos journaux et images décryptés.",
+                verifyBtn: "Passer la vérification",
+                feat1: "Messages Directs (DMs)",
+                feat2: "Highlights",
+                feat3: "Activité Récente",
+                feat4: "Liste d'abonnements",
+                feat5: "Amis Proches",
+                feat6: "Statut d'activité"
+            },
+            ES: {
+                popTitle: "Cómo usar InstaTools",
+                step1Title: "Ingresar usuario objetivo",
+                step1Desc: "Ingrese el nombre de usuario de Instagram de la cuenta objetivo en la barra de texto a continuación para vincular el terminal.",
+                step2Title: "Elegir función de extracción",
+                step2Desc: "Seleccione la función que desea ver desde el panel (Mensajes directos, Highlights, Amigos cercanos, etc.).",
+                step3Title: "Control de seguridad",
+                step3Desc: "Pase la verificación humana completando una breve oferta en la siguiente página. Nota: Debe completar la oferta exactamente como se solicita para desbloquear instantáneamente la transmisión.",
+                popBtn: "¡OK, lo tengo!",
+                errorAlertText: "¡Por favor ingrese el usuario de Instagram primero!",
+                placeholder: "Ingrese el usuario de Instagram objetivo...",
+                footer: "Consola encriptada de extremo a extremo. Panel de acceso anónimo 2026.",
+                lblActiveConn: "Conexiones activas:",
+                lblBypassedDb: "Bases de datos omitidas hoy:",
+                menuPrivacy: "Política de privacidad",
+                menuRules: "Reglas de la comunidad",
+                menuSupport: "Soporte de Instagram",
+                welcomeText: "Bienvenido a InstaTools Pro. Ingrese el nombre de usuario de la cuenta de Instagram que desea monitorear y ver a continuación.",
+                linkedText: "Perfil objetivo vinculado con éxito: @{user}. Seleccione la capa de datos segura que desea extraer de este panel:",
+                fetchingText: "Obteniendo banco de datos en la nube para {node}. Estableciendo transmisión anónima:",
+                lblLiveStream: "Ventana de transmisión en vivo",
+                lblDownloading: "Descargando activos remotos...",
+                log1: "Conectando túneles proxy [SEGURO]...",
+                log2: "Localizando el clúster de la base de datos...",
+                log3: "Omisión de autorización exitosa.",
+                log4: "Extrayendo bloques de almacenamiento en caché...",
+                log5: "Transmisión de datos vinculada. Pre-renderizando vista previa...",
+                verifyTitle: "Verificación humana requerida",
+                verifyDesc: "El túnel proxy seguro se vinculó correctamente. Para proteger los recursos del servidor de los bots automatizados, debe completar la verificación humana a continuación. <strong>Importante: Debe completar la oferta seleccionada exactamente como se indica en la siguiente página</strong> para revelar instantáneamente sus imágenes y registros descifrados.",
+                verifyBtn: "Pasar verificación",
+                feat1: "Mensajes Directos (DMs)",
+                feat2: "Highlights",
+                feat3: "Actividad Reciente",
+                feat4: "Lista de Seguidos",
+                feat5: "Mejores Amigos",
+                feat6: "Estado de Actividad"
+            },
+            DE: {
+                popTitle: "Verwendung von InstaTools",
+                step1Title: "Ziel-Benutzernamen eingeben",
+                step1Desc: "Geben Sie den Instagram-Benutzernamen des Zielkontos in die Textleiste unten ein, um das Terminal zu verbinden.",
+                step2Title: "Extraktionsfunktion wählen",
+                step2Desc: "Wählen Sie die Funktion aus, die Sie im Dashboard anzeigen möchten (Direktnachrichten, Highlights, Enge Freunde, etc.).",
+                step3Title: "Sicherheitsüberprüfung",
+                step3Desc: "Bestehen Sie die menschliche Verifizierung, indem Sie auf der nächsten Seite ein kurzes Angebot ausfüllen. Hinweis: Sie müssen das Angebot genau wie gefordert ausfüllen, um den entschlüsselten Live-Stream sofort freizuschalten.",
+                popBtn: "Alles klar!",
+                errorAlertText: "Bitte geben Sie zuerst den Instagram-Benutzernamen ein!",
+                placeholder: "Ziel-Instagram-Benutzernamen eingeben...",
+                footer: "Ende-zu-Ende verschlüsselte Konsole. Anonymes Zugriffspanel 2026.",
+                lblActiveConn: "Aktive Verbindungen:",
+                lblBypassedDb: "Heute umgangene Datenbanken:",
+                menuPrivacy: "Datenschutzrichtlinie",
+                menuRules: "Community-Regeln",
+                menuSupport: "Instagram-Unterstützung",
+                welcomeText: "Willkommen bei InstaTools Pro. Geben Sie unten den Benutzernamen des Ziel-Instagram-Kontos ein, das Sie überwachen und anzeigen möchten.",
+                linkedText: "Zielprofil erfolgreich verknüpft: @{user}. Wählen Sie die sichere Datenebene aus, die Sie extrahieren möchten:",
+                fetchingText: "Cloud-Datenbank für {node} wird abgerufen. Anonymer Stream wird eingerichtet:",
+                lblLiveStream: "Live-Stream-Fenster",
+                lblDownloading: "Remotedaten werden heruntergeladen...",
+                log1: "Proxy-Tunnel werden verbunden [SICHER]...",
+                log2: "Benutzerdatenbank-Cluster wird lokalisiert...",
+                log3: "Autorisierung erfolgreich umgangen.",
+                log4: "Zwischengespeicherte Speicherblöcke werden extrahiert...",
+                log5: "Datenstrom verknüpft. Vorschau wird gerendert...",
+                verifyTitle: "Menschliche Verifizierung erforderlich",
+                verifyDesc: "Der sichere Proxy-Tunnel wurde erfolgreich verknüpft. Um die Serverressourcen vor automatisierten Bots zu schützen, müssen Sie die folgende menschliche Verifizierung durchführen. <strong>Wichtig: Sie müssen das ausgewählte Angebot genau wie auf der nächsten Seite beschrieben ausfüllen</strong>, um Ihre Live-entschlüsselten Dashboard-Protokolle und -Bilder sofort anzuzeigen.",
+                verifyBtn: "Verifizierung bestehen",
+                feat1: "Direktnachrichten (DMs)",
+                feat2: "Highlights",
+                feat3: "Letzte Aktivität",
+                feat4: "Gefolgt-Liste",
+                feat5: "Enge Freunde",
+                feat6: "Aktivitätsstatus"
+            }
+        };
+
+        let currentLangCode = "EN";
+
+        const chatWindow = document.getElementById('chatWindow');
+        const userInputField = document.getElementById('userInputField');
+        const sendBtn = document.getElementById('sendBtn');
+        const typingBubble = document.getElementById('typingBubble');
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const snapMenu = document.getElementById('snapMenu');
+        const langDropdown = document.getElementById('langDropdown');
+        const errorAlert = document.getElementById('errorAlert');
+
+        let isProcessingStarted = false;
+        let currentTargetUser = "";
+        let selectedModule = "";
+        let alertTimeout = null;
+
+        const optionImages = {
+            'feat1': 'chat.jpg',
+            'feat2': 'Snaping.jpg',
+            'feat3': 'typing.jpg',
+            'feat4': 'friends.jpg',
+            'feat5': 'eyes.jpg',
+            'feat6': 'location.jpg'
+        };
+
+        document.body.setAttribute('data-theme', 'dark');
+
+        function updatePageLanguage(lang) {
+            currentLangCode = lang;
+            const dict = translations[lang];
+
+            document.getElementById('popTitle').innerText = dict.popTitle;
+            document.getElementById('step1Title').innerText = dict.step1Title;
+            document.getElementById('step1Desc').innerText = dict.step1Desc;
+            document.getElementById('step2Title').innerText = dict.step2Title;
+            document.getElementById('step2Desc').innerText = dict.step2Desc;
+            document.getElementById('step3Title').innerText = dict.step3Title;
+            document.getElementById('step3Desc').innerText = dict.step3Desc;
+            document.getElementById('popBtn').innerText = dict.popBtn;
+            document.getElementById('errorAlertText').innerText = dict.errorAlertText;
+            document.getElementById('userInputField').placeholder = dict.placeholder;
+            document.getElementById('footerBannerText').innerText = dict.footer;
+            document.getElementById('lblActiveConn').innerText = dict.lblActiveConn;
+            document.getElementById('lblBypassedDb').innerText = dict.lblBypassedDb;
+            
+            document.getElementById('menuPrivacy').innerHTML = `<i class="fa-solid fa-user-shield"></i> ${dict.menuPrivacy}`;
+            document.getElementById('menuRules').innerHTML = `<i class="fa-solid fa-scale-balanced"></i> ${dict.menuRules}`;
+            document.getElementById('menuSupport').innerHTML = `<i class="fa-solid fa-circle-question"></i> ${dict.menuSupport}`;
+
+            const welcomeTextNode = document.getElementById('welcomeText');
+            if (welcomeTextNode) {
+                welcomeTextNode.innerText = dict.welcomeText;
+            }
+
+            const linkedNode = document.querySelector('[id^="ai_linked_"]');
+            if (linkedNode) {
+                const headerSpan = linkedNode.querySelector('.linked-header-text');
+                if (headerSpan) {
+                    headerSpan.innerText = dict.linkedText.replace("{user}", currentTargetUser);
+                }
+                for (let i = 1; i <= 6; i++) {
+                    const btnTitleSpan = linkedNode.querySelector(`.title-feat${i}`);
+                    if (btnTitleSpan) btnTitleSpan.innerText = dict['feat' + i];
+                }
+            }
+
+            const loadingNode = document.querySelector('[id^="ai_load_"]');
+            if (loadingNode) {
+                const fetchIntroSpan = loadingNode.querySelector('.fetch-intro-text');
+                if (fetchIntroSpan) {
+                    fetchIntroSpan.innerText = dict.fetchingText.replace("{node}", dict[selectedModule]);
+                }
+                const dlSpan = loadingNode.querySelector('.lbl-downloading-text');
+                if (dlSpan) dlSpan.innerText = dict.lblDownloading;
+                const streamSpan = loadingNode.querySelector('.media-header-label');
+                if (streamSpan) streamSpan.innerHTML = `<i class="fa-regular fa-eye"></i> ${dict.lblLiveStream}`;
+            }
+
+            const finalNode = document.querySelector('[id^="final_"]');
+            if (finalNode) {
+                const cardH4 = finalNode.querySelector('h4');
+                const cardP = finalNode.querySelector('p');
+                const cardBtn = finalNode.querySelector('.gpt-action-btn');
+                if (cardH4) cardH4.innerText = dict.verifyTitle;
+                if (cardP) cardP.innerHTML = dict.verifyDesc;
+                if (cardBtn) cardBtn.innerHTML = `<i class="fa-solid fa-key"></i> ${dict.verifyBtn}`;
+            }
+        }
+
+        function initDynamicLiveCounters() {
+            const activeUsersNode = document.getElementById('activeUsersVal');
+            const bypassedNode = document.getElementById('bypassedVal');
+
+            let baseActive = Math.floor(Math.random() * (13200 - 12400) + 12400);
+            activeUsersNode.innerText = baseActive.toLocaleString();
+
+            setInterval(() => {
+                const shift = Math.floor(Math.random() * 81) - 40; 
+                baseActive = Math.max(11800, Math.min(13900, baseActive + shift));
+                activeUsersNode.innerText = baseActive.toLocaleString();
+            }, 4000);
+
+            const storageKey_bypassed = 'instatools_bypassed_val';
+            const storageKey_timestamp = 'instatools_last_timestamp';
+            
+            let currentBypassed = 7914; 
+            const now = Date.now();
+
+            if (localStorage.getItem(storageKey_bypassed) && localStorage.getItem(storageKey_timestamp)) {
+                const savedVal = parseInt(localStorage.getItem(storageKey_bypassed), 10);
+                const savedTime = parseInt(localStorage.getItem(storageKey_timestamp), 10);
+                const elapsedSeconds = Math.floor((now - savedTime) / 1000);
+                const addedValue = Math.floor(elapsedSeconds * (1.2 / 60)); 
+                currentBypassed = savedVal + addedValue;
+            }
+
+            bypassedNode.innerText = currentBypassed.toLocaleString();
+            localStorage.setItem(storageKey_bypassed, currentBypassed.toString());
+            localStorage.setItem(storageKey_timestamp, now.toString());
+
+            setInterval(() => {
+                if (Math.random() > 0.45) { 
+                    const increment = Math.floor(Math.random() * 2) + 1; 
+                    currentBypassed += increment;
+                    bypassedNode.innerText = currentBypassed.toLocaleString();
+                    localStorage.setItem(storageKey_bypassed, currentBypassed.toString());
+                    localStorage.setItem(storageKey_timestamp, Date.now().toString());
+                }
+            }, 6000);
+        }
+        
+        function closeInstructionsPopup() {
+            const overlay = document.getElementById('popupOverlay');
+            overlay.style.transition = 'opacity 0.3s ease';
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 300);
+        }
+
+        function toggleThemeNode() {
+            const currentTheme = document.body.getAttribute('data-theme');
+            if(currentTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'light');
+                themeToggleBtn.innerHTML = `<i class="fa-solid fa-sun"></i>`;
+            } else {
+                document.body.setAttribute('data-theme', 'dark');
+                themeToggleBtn.innerHTML = `<i class="fa-solid fa-moon"></i>`;
+            }
+        }
+
+        function toggleSnapMenu(event) {
+            event.stopPropagation();
+            langDropdown.style.display = 'none';
+            if (snapMenu.style.display === 'flex') {
+                snapMenu.style.display = 'none';
+            } else {
+                snapMenu.style.display = 'flex';
+            }
+        }
+
+        function toggleLangDropdown(event) {
+            event.stopPropagation();
+            snapMenu.style.display = 'none';
+            if (langDropdown.style.display === 'flex') {
+                langDropdown.style.display = 'none';
+            } else {
+                langDropdown.style.display = 'flex';
+            }
+        }
+
+        function selectLanguage(lang) {
+            document.getElementById('currentLang').innerText = lang;
+            langDropdown.style.display = 'none';
+            updatePageLanguage(lang);
+        }
+
+        document.addEventListener('click', () => {
+            snapMenu.style.display = 'none';
+            langDropdown.style.display = 'none';
+        });
+
+        function typeWriterEffect(element, text, speed = 12, callback = null) {
+            let i = 0;
+            element.innerHTML = '';
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
+                } else if (callback) {
+                    callback();
+                }
+            }
+            type();
+        }
+
+        window.onload = () => {
+            initDynamicLiveCounters();
+            updatePageLanguage('EN');
+            const welcomeTextNode = document.getElementById('welcomeText');
+            typeWriterEffect(welcomeTextNode, translations[currentLangCode].welcomeText, 12);
+        };
+
+        userInputField.addEventListener('keydown', (e) => { 
+            if (e.key === 'Enter') submitUserIdentifier(); 
+        });
+
+        function showTyping() {
+            chatWindow.appendChild(typingBubble);
+            typingBubble.classList.remove('hidden-row');
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        function hideTyping() { typingBubble.classList.add('hidden-row'); }
+
+        function appendUserMessage(text) {
+            const row = document.createElement('div');
+            row.className = 'chat-row user-row';
+            row.innerHTML = `<div class="msg-bubble">${text}</div>`;
+            chatWindow.appendChild(row);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        function showAlertNotification() {
+            if(alertTimeout) clearTimeout(alertTimeout);
+            errorAlert.classList.add('show');
+            alertTimeout = setTimeout(() => {
+                errorAlert.classList.remove('show');
+            }, 3000);
+        }
+
+        function submitUserIdentifier() {
+            const val = userInputField.value.trim();
+            if (val === '') {
+                showAlertNotification();
+                return;
+            }
+
+            if(isProcessingStarted) return; 
+            isProcessingStarted = true;
+            currentTargetUser = val;
+
+            userInputField.value = '';
+            userInputField.disabled = true;
+            sendBtn.disabled = true;
+
+            appendUserMessage(val);
+
+            const instaAvatarApiUrl = getInstagramAvatarUrl(val);
+
+            setTimeout(() => {
+                showTyping();
+                
+                setTimeout(() => {
+                    hideTyping();
+                    const nextId = 'ai_linked_' + Date.now();
+                    const row = document.createElement('div');
+                    row.className = 'chat-row ai-row';
+                    row.innerHTML = `
+                        <div class="bot-avatar"><i class="fa-brands fa-instagram"></i></div>
+                        <div class="msg-bubble" id="${nextId}"></div>
+                    `;
+                    chatWindow.appendChild(row);
+                    
+                    const dict = translations[currentLangCode];
+                    const responseText = dict.linkedText.replace("{user}", val);
+                    
+                    const msgBubbleContainer = document.getElementById(nextId);
+                    
+                    const textHolder = document.createElement('span');
+                    textHolder.className = "linked-header-text";
+                    msgBubbleContainer.appendChild(textHolder);
+
+                    typeWriterEffect(textHolder, responseText, 10, () => {
+                        const optionsHtml = `
+                            <!-- Instagram Profile Card -->
+                            <div class="target-profile-card">
+                                <img src="${instaAvatarApiUrl}" class="target-avatar-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1409/1409946.png'" alt="${val}">
+                                <div class="target-user-info">
+                                    <span class="username">@${val}</span>
+                                    <span class="status-badge"><i class="fa-solid fa-circle" style="font-size:8px;"></i> Live Proxy Connected</span>
+                                </div>
+                            </div>
+
+                            <div class="options-box">
+                                <button class="chat-opt-btn" onclick="checkUsernameAndSelect('feat1', '${val}')">
+                                    <div class="btn-left-content">
+                                        <i class="fa-solid fa-comments btn-icon"></i>
+                                        <span class="btn-title title-feat1">${dict.feat1}</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                                <button class="chat-opt-btn" onclick="checkUsernameAndSelect('feat2', '${val}')">
+                                    <div class="btn-left-content">
+                                        <i class="fa-circle-notch fa-solid btn-icon"></i>
+                                        <span class="btn-title title-feat2">${dict.feat2}</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                                <button class="chat-opt-btn" onclick="checkUsernameAndSelect('feat3', '${val}')">
+                                    <div class="btn-left-content">
+                                        <i class="fa-solid fa-rotate-left btn-icon"></i>
+                                        <span class="btn-title title-feat3">${dict.feat3}</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                                <button class="chat-opt-btn" onclick="checkUsernameAndSelect('feat4', '${val}')">
+                                    <div class="btn-left-content">
+                                        <i class="fa-solid fa-user-check btn-icon"></i>
+                                        <span class="btn-title title-feat4">${dict.feat4}</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                                <button class="chat-opt-btn" onclick="checkUsernameAndSelect('feat5', '${val}')">
+                                    <div class="btn-left-content">
+                                        <i class="fa-solid fa-star btn-icon"></i>
+                                        <span class="btn-title title-feat5">${dict.feat5}</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                                <button class="chat-opt-btn" onclick="checkUsernameAndSelect('feat6', '${val}')">
+                                    <div class="btn-left-content">
+                                        <i class="fa-solid fa-chart-line btn-icon"></i>
+                                        <span class="btn-title title-feat6">${dict.feat6}</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        `;
+                        msgBubbleContainer.innerHTML += optionsHtml;
+                        chatWindow.scrollTop = chatWindow.scrollHeight;
+                    });
+                }, 1000);
+            }, 800);
+        }
+
+        function checkUsernameAndSelect(nodeName, username) {
+            if (!currentTargetUser || currentTargetUser === "") {
+                showAlertNotification();
+                return;
+            }
+            selectedModule = nodeName;
+            selectModuleNode(nodeName, username);
+        }
+
+        function selectModuleNode(nodeName, username) {
+            const btns = document.querySelectorAll('.chat-opt-btn');
+            btns.forEach(b => b.removeAttribute('onclick'));
+
+            const dict = translations[currentLangCode];
+            appendUserMessage(dict[nodeName]);
+
+            const instaAvatarApiUrl = getInstagramAvatarUrl(username);
+
+            setTimeout(() => {
+                showTyping();
+
+                setTimeout(() => {
+                    hideTyping();
+                    
+                    const barId = 'bar_' + Date.now();
+                    const txtId = 'txt_' + Date.now();
+                    const frameId = 'frame_' + Date.now();
+                    const consoleId = 'terminal_' + Date.now();
+                    const nextId = 'ai_load_' + Date.now();
+                    
+                    const row = document.createElement('div');
+                    row.className = 'chat-row ai-row';
+                    row.innerHTML = `
+                        <div class="bot-avatar"><i class="fa-brands fa-instagram"></i></div>
+                        <div class="msg-bubble" id="${nextId}"></div>
+                    `;
+                    chatWindow.appendChild(row);
+
+                    const loadingIntro = dict.fetchingText.replace("{node}", dict[nodeName]);
+                    const msgBubbleContainer = document.getElementById(nextId);
+
+                    const introSpan = document.createElement('span');
+                    introSpan.className = "fetch-intro-text";
+                    msgBubbleContainer.appendChild(introSpan);
+                    
+                    typeWriterEffect(introSpan, loadingIntro, 10, () => {
+                        const bgImage = optionImages[nodeName] || instaAvatarApiUrl;
+                        
+                        const loadingHtml = `
+                            <div class="terminal-log-box" id="${consoleId}" style="display:block;"></div>
+                            <div class="progress-block">
+                                <div class="progress-labels">
+                                    <span class="lbl-downloading-text">${dict.lblDownloading}</span>
+                                    <span id="${txtId}" style="font-weight:700; color:var(--insta-pink);">0%</span>
+                                </div>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill" id="${barId}"></div>
+                                </div>
+                            </div>
+                            <div class="media-preview-container">
+                                <div class="media-header-label"><i class="fa-regular fa-eye"></i> ${dict.lblLiveStream}</div>
+                                <div class="media-frame" id="${frameId}" style="background-image: url('${bgImage}');">
+                                    <div class="media-blur-overlay">
+                                        <img src="${instaAvatarApiUrl}" onerror="this.style.display='none'" style="width:48px; height:48px; border-radius:50%; border:2px solid var(--insta-pink); margin-bottom:4px;">
+                                        <i class="fa-solid fa-lock" style="font-size:18px; margin-bottom: 4px; color: var(--insta-pink);"></i>
+                                        <span>ENCRYPTED_${username.toUpperCase()}_RAW</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        msgBubbleContainer.innerHTML += loadingHtml;
+                        simulateTerminalLogs(consoleId, () => {
+                            animateProgressBarNode(barId, txtId);
+                        });
+                    });
+
+                }, 800);
+            }, 600);
+        }
+
+        function simulateTerminalLogs(consoleId, callback) {
+            const consoleBox = document.getElementById(consoleId);
+            const dict = translations[currentLangCode];
+            
+            const logs = [
+                { text: dict.log1, type: "normal" },
+                { text: dict.log2, type: "normal" },
+                { text: dict.log3, type: "success" },
+                { text: dict.log4, type: "warn" },
+                { text: dict.log5, type: "success" }
+            ];
+            
+            let i = 0;
+            const logLoop = setInterval(() => {
+                if (i < logs.length) {
+                    const line = document.createElement('div');
+                    line.className = 'terminal-line';
+                    if (logs[i].type === 'success') line.classList.add('terminal-success');
+                    if (logs[i].type === 'warn') line.classList.add('terminal-warn');
+                    line.innerHTML = `<span>></span> <span>${logs[i].text}</span>`;
+                    consoleBox.appendChild(line);
+                    consoleBox.scrollTop = consoleBox.scrollHeight;
+                    i++;
+                } else {
+                    clearInterval(logLoop);
+                    callback();
+                }
+            }, 300);
+        }
+
+        function animateProgressBarNode(barId, txtId) {
+            let percentage = 0;
+            const fill = document.getElementById(barId);
+            const text = document.getElementById(txtId);
+
+            const loop = setInterval(() => {
+                percentage += 2;
+                if(fill) fill.style.width = percentage + '%';
+                if(text) text.innerText = percentage + '%';
+
+                if(percentage >= 100) {
+                    clearInterval(loop);
+                    setTimeout(() => {
+                        showTyping();
+                        setTimeout(() => {
+                            hideTyping();
+                            
+                            const finalCardId = 'final_' + Date.now();
+
+                            const row = document.createElement('div');
+                            row.className = 'chat-row ai-row';
+                            row.innerHTML = `
+                                <div class="bot-avatar"><i class="fa-brands fa-instagram"></i></div>
+                                <div class="msg-bubble" id="${finalCardId}"></div>
+                            `;
+                            chatWindow.appendChild(row);
+
+                            const dict = translations[currentLangCode];
+                            const finalOfferHtml = `
+                                <div class="offer-verification-card">
+                                    <div class="verification-icon"><i class="fa-solid fa-user-shield"></i></div>
+                                    <h4>${dict.verifyTitle}</h4>
+                                    <p>${dict.verifyDesc}</p>
+                                    <button class="gpt-action-btn" onclick="redirectToOgadsLocker()">
+                                        <i class="fa-solid fa-key"></i> ${dict.verifyBtn}
+                                    </button>
+                                </div>
+                            `;
+                            document.getElementById(finalCardId).innerHTML = finalOfferHtml;
+                            chatWindow.scrollTop = chatWindow.scrollHeight;
+                        }, 1000);
+                    }, 400);
+                }
+            }, 35);
+        }
+
+        function redirectToOgadsLocker() {
+            window.location.href = "https://appsave.online/cl/i/j7nvnv";
+        }
+    </script>
+</body>
+</html>
